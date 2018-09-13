@@ -1,5 +1,7 @@
 package de.comparus.opensource.longmap;
 
+import java.util.Collection;
+
 public interface LongMap<V> {
     V put(long key, V value);
     V get(long key);
@@ -10,7 +12,7 @@ public interface LongMap<V> {
     boolean containsValue(V value);
 
     long[] keys();
-    V[] values();
+    Collection<V> values();
 
     long size();
     void clear();
