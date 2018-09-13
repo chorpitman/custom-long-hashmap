@@ -3,9 +3,8 @@ package de.comparus.opensource.longmap;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Collection;
-
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 
 public class LongMapImplTest {
     private static final String VALUE_1 = "Value1";
@@ -15,6 +14,9 @@ public class LongMapImplTest {
     private static final int KEY_1 = 1;
     private static final int KEY_2 = 2;
     private static final int KEY_3 = 3;
+
+    private static final long KEY = -1119999904145558222L;
+    private static final int HASH_TABL_LENGTH = 16;
 
     @Test
     public void shouldAddElementToMap() {
@@ -29,6 +31,19 @@ public class LongMapImplTest {
         assertEquals(VALUE_1, map.get(KEY_1));
         assertEquals(VALUE_2, map.get(KEY_2));
         assertEquals(VALUE_3, map.get(KEY_3));
+    }
+
+    @Test
+    public void shouldRewriteValueIfKeySame() {
+        //GIVEN
+        LongMap<String> map = new LongMapImpl<>();
+        //WHEN
+        map.put(KEY_1, VALUE_1);
+        map.put(KEY_1, VALUE_2);
+        map.put(KEY_1, VALUE_3);
+        //THEN
+        assertEquals(1, map.size());
+        assertEquals(VALUE_3, map.get(KEY_1));
     }
 
     @Test
@@ -107,7 +122,7 @@ public class LongMapImplTest {
     }
 
     @Test
-    public void shouldReturnFalseMapDoesNotContainsKey() {
+    public void shouldReturnFalseIfMapDoesNotContainsKey() {
         //GIVEN
         LongMap<String> map = new LongMapImpl<>();
         //WHEN
@@ -120,7 +135,7 @@ public class LongMapImplTest {
     }
 
     @Test
-    public void shouldReturnTrueValueContains() {
+    public void shouldReturnTrueIfValueContains() {
         //GIVEN
         LongMap<String> map = new LongMapImpl<>();
         //WHEN
@@ -169,16 +184,24 @@ public class LongMapImplTest {
     }
 
     @Test
-    public void values() {
+    public void shouldReturnExistValues() {
         //GIVEN
         LongMap<String> map = new LongMapImpl<>();
         //WHEN
         map.put(KEY_2, VALUE_2);
         map.put(KEY_3, VALUE_3);
         map.put(KEY_1, VALUE_1);
-        Collection<String> values = map.values();
         //THEN
-        System.out.println(values);
+        assertEquals(3, map.values().size());
+    }
+
+    @Test
+    public void shouldReturnZeoValues() {
+        //GIVEN
+        LongMap<String> map = new LongMapImpl<>();
+        //WHEN
+        //THEN
+        assertEquals(0, map.values().size());
     }
 
     @Test
@@ -212,8 +235,12 @@ public class LongMapImplTest {
         //GIVEN
         LongMap<String> map = new LongMapImpl<>();
         //WHEN
-        int i = ((LongMapImpl<String>) map).hashFunction(234L, 16);
+        int firstResult = ((LongMapImpl<String>) map).hashFunction(KEY, HASH_TABL_LENGTH);
+        int secondResult = ((LongMapImpl<String>) map).hashFunction(KEY, HASH_TABL_LENGTH);
         //THEN
+        assertNotSame(KEY, firstResult);
+        assertNotSame(KEY, secondResult);
+        assertEquals(firstResult, secondResult);
     }
 
     private boolean findKey(long findKey, long[] keys) {
