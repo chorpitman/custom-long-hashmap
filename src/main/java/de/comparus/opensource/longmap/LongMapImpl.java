@@ -1,6 +1,8 @@
 package de.comparus.opensource.longmap;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -126,6 +128,26 @@ public class LongMapImpl<V> implements LongMap<V> {
     }
 
     public boolean containsValue(V value) {
+        if (size == 0) {
+            return false;
+        }
+
+        for (int i = 0; i < hashTable.length; i++) {
+            if (hashTable[i] == null) {
+                continue;
+            }
+
+            List<Node<V>> nodesList = hashTable[i].getNodesList();
+            if (nodesList.isEmpty()) {
+                continue;
+            }
+
+            for (Node<V> node : nodesList) {
+                if (node.getValue().equals(value)) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -145,8 +167,28 @@ public class LongMapImpl<V> implements LongMap<V> {
         return list.stream().mapToLong(l -> l).toArray();
     }
 
-    public V[] values() {
-        return null;
+    public Collection<V> values() {
+        if (size == 0) {
+            return Collections.emptyList();
+        }
+
+        List<V> values = new ArrayList<>();
+        for (int i = 0; i < hashTable.length; i++) {
+            if (hashTable[i] == null) {
+                continue;
+            }
+            List<Node<V>> foundNodes = hashTable[i].getNodesList();
+
+            if (foundNodes.isEmpty()) {
+                continue;
+            }
+
+            for (Node<V> node : foundNodes) {
+                values.add(node.getValue());
+            }
+        }
+
+        return values;
     }
 
     public long size() {
