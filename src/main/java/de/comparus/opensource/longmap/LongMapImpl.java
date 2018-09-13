@@ -108,7 +108,7 @@ public class LongMapImpl<V> implements LongMap<V> {
         int arrIndex = hashFunction(key, hashTable.length);
 
         if (arrIndex > hashTable.length - 1 || hashTable[arrIndex] == null) {
-            throw new IllegalArgumentException(); //todo
+            return false;
         }
 
         if (hashTable[arrIndex].getNodesList().size() == 1) {
