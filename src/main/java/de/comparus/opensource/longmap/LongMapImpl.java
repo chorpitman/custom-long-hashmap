@@ -1,5 +1,6 @@
 package de.comparus.opensource.longmap;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -20,7 +21,7 @@ public class LongMapImpl<V> implements LongMap<V> {
 
         //empty cell in hashtable
         if (hashTable[arrIndex] == null) {
-            hashTable[arrIndex] = new Node<>(0, null);
+            hashTable[arrIndex] = new Node<>();
             hashTable[arrIndex].getNodesList().add(newNode);
             size++;
 
@@ -28,19 +29,18 @@ public class LongMapImpl<V> implements LongMap<V> {
         }
 
         //cell has something
-        List<Node<V>> foundNode = hashTable[arrIndex].getNodesList();
-
-        for (Node<V> vNode : foundNode) {
+        List<Node<V>> foundNodes = hashTable[arrIndex].getNodesList();
+        for (Node<V> node : foundNodes) {
             //key exist in hashtable value does not same
-            if (vNode.getKey() == key && !Objects.equals(vNode.getValue(), value)) {
+            if (node.getKey() == key && !Objects.equals(node.getValue(), value)) {
                 //replace value
-                vNode.setValue(value);
+                node.setValue(value);
 
                 return value;
             }
             //collision. hashcode same but key and value are different
-            if (vNode.getKey() != key && !Objects.equals(vNode.getValue(), value) && Objects.equals(newNode, vNode)) {
-                foundNode.add(newNode);
+            if (node.getKey() != key && !Objects.equals(node.getValue(), value) && Objects.equals(newNode, node)) {
+                foundNodes.add(newNode);
                 size++;
 
                 return value;
@@ -52,6 +52,20 @@ public class LongMapImpl<V> implements LongMap<V> {
 
     public V get(long key) {
         int arrIndex = hashFunction(key, hashTable.length);
+        //todo separate for 2 exception
+        if (arrIndex > hashTable.length - 1 || hashTable[arrIndex] == null) {
+            throw new IllegalArgumentException("element with key: " + key + " does not exist");
+        }
+        if (hashTable[arrIndex].getNodesList().size() == 1) {
+            return hashTable[arrIndex].getNodesList().get(0).getValue();
+        }
+
+        List<Node<V>> foundNodes = hashTable[arrIndex].getNodesList();
+        for (Node<V> node : foundNodes) {
+            if (key == node.getKey()) {
+                return node.getValue();
+            }
+        }
 
         return null;
     }
@@ -72,11 +86,11 @@ public class LongMapImpl<V> implements LongMap<V> {
             return removeCandidate;
         }
 
-        List<Node<V>> nodes = hashTable[arrIndex].getNodesList();
-        for (Node<V> node : nodes) {
+        List<Node<V>> foundNodes = hashTable[arrIndex].getNodesList();
+        for (Node<V> node : foundNodes) {
             if (key == node.getKey()) {
                 V removeCandidate = node.getValue();
-                nodes.remove(node);
+                foundNodes.remove(node);
 
                 return removeCandidate;
             }
@@ -90,6 +104,24 @@ public class LongMapImpl<V> implements LongMap<V> {
     }
 
     public boolean containsKey(long key) {
+        //find arr cell
+        int arrIndex = hashFunction(key, hashTable.length);
+
+        if (arrIndex > hashTable.length - 1 || hashTable[arrIndex] == null) {
+            throw new IllegalArgumentException(); //todo
+        }
+
+        if (hashTable[arrIndex].getNodesList().size() == 1) {
+            return true;
+        }
+
+        List<Node<V>> foundNode = hashTable[arrIndex].getNodesList();
+        for (Node<V> node : foundNode) {
+            if (node.getKey() == key) {
+                return true;
+            }
+        }
+
         return false;
     }
 
@@ -98,7 +130,19 @@ public class LongMapImpl<V> implements LongMap<V> {
     }
 
     public long[] keys() {
-        return null;
+        List<Long> list = new ArrayList<>();
+
+        for (int i = 0; i < hashTable.length; i++) {
+            if (hashTable[i] != null) {
+                List<Node<V>> nodesList = hashTable[i].getNodesList();
+                for (Node<V> node : nodesList) {
+                    long key = node.getKey();
+                    list.add(key);
+                }
+            }
+        }
+
+        return list.stream().mapToLong(l -> l).toArray();
     }
 
     public V[] values() {
