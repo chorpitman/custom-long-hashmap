@@ -1,6 +1,9 @@
 package de.comparus.opensource.longmap;
 
+import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.Random;
 
 import static org.junit.Assert.assertEquals;
 
@@ -69,16 +72,50 @@ public class LongMapImplTest {
     }
 
     @Test
-    public void isEmpty() {
-
-
+    public void shouldReturnFalseIfMapDoesNotEmpty() {
+        //GIVEN
+        LongMap<String> map = new LongMapImpl<>();
+        //WHEN
+        map.put(KEY_3, VALUE_3);
+        map.put(KEY_2, VALUE_2);
+        map.put(KEY_1, VALUE_1);
+        //THEN
+        assertEquals(false, map.isEmpty());
     }
 
     @Test
-    public void containsKey() {
+    public void shouldReturnTrueIfMapIsEmpty() {
         //GIVEN
+        LongMap<String> map = new LongMapImpl<>();
         //WHEN
         //THEN
+        assertEquals(true, map.isEmpty());
+    }
+
+    @Test
+    public void shouldReturnTrueMapContainsKey() {
+        //GIVEN
+        LongMap<String> map = new LongMapImpl<>();
+        //WHEN
+        map.put(KEY_3, VALUE_3);
+        map.put(KEY_2, VALUE_2);
+        map.put(KEY_1, VALUE_1);
+        //THEN
+        assertEquals(true, map.containsKey(KEY_1));
+        assertEquals(true, map.containsKey(KEY_2));
+        assertEquals(true, map.containsKey(KEY_3));
+    }
+
+    @Test
+    public void shouldReturnFalseMapDoesNotContainsKey() {
+        //GIVEN
+        LongMap<String> map = new LongMapImpl<>();
+        //WHEN
+        map.put(KEY_3, VALUE_3);
+        map.put(KEY_2, VALUE_2);
+        map.put(KEY_1, VALUE_1);
+        //THEN
+        assertEquals(false, map.containsKey(new Random().nextLong()));
     }
 
     @Test
@@ -89,10 +126,29 @@ public class LongMapImplTest {
     }
 
     @Test
-    public void keys() {
+    public void shouldReturnKeys() {
         //GIVEN
+        LongMap<String> map = new LongMapImpl<>();
         //WHEN
+        map.put(KEY_2, VALUE_2);
+        map.put(KEY_3, VALUE_3);
+        map.put(KEY_1, VALUE_1);
+        long[] keys = map.keys();
         //THEN
+        assertEquals(3, keys.length);
+        assertEquals(true, findKey(KEY_1, keys));
+        assertEquals(true, findKey(KEY_2, keys));
+        assertEquals(true, findKey(KEY_3, keys));
+    }
+
+    @Test
+    public void shouldNotReturnKeys() {
+        //GIVEN
+        LongMap<String> map = new LongMapImpl<>();
+        //WHEN
+        long[] keys = map.keys();
+        //THEN
+        assertEquals(0, keys.length);
     }
 
     @Test
@@ -103,23 +159,45 @@ public class LongMapImplTest {
     }
 
     @Test
-    public void size() {
+    public void shouldReturnActualMapSize() {
         //GIVEN
+        LongMap<String> map = new LongMapImpl<>();
         //WHEN
+        map.put(KEY_2, VALUE_2);
+        map.put(KEY_3, VALUE_3);
+        map.put(KEY_1, VALUE_1);
         //THEN
+        Assert.assertEquals(3, map.size());
     }
 
     @Test
-    public void clear() {
+    public void shouldRemoveAllElementsFromMap() {
         //GIVEN
+        LongMap<String> map = new LongMapImpl<>();
         //WHEN
+        map.put(KEY_2, VALUE_2);
+        map.put(KEY_3, VALUE_3);
+        map.put(KEY_1, VALUE_1);
+        assertEquals(3, map.size());
         //THEN
+        map.clear();
+        assertEquals(0, map.size());
     }
 
     @Test
     public void hashFunction() {
         //GIVEN
+
         //WHEN
         //THEN
+    }
+
+    private boolean findKey(long findKey, long[] keys) {
+        for (int i = 0; i < keys.length; i++) {
+            if (findKey == keys[i]) {
+                return true;
+            }
+        }
+        return false;
     }
 }
