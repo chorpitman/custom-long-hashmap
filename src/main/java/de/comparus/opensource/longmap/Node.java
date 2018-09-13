@@ -15,6 +15,10 @@ public class Node<V> {
         nodesList = new ArrayList<>();
     }
 
+    public Node() {
+        nodesList = new ArrayList<>();
+    }
+
     public List<Node<V>> getNodesList() {
         return nodesList;
     }
