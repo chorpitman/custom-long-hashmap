@@ -3,7 +3,7 @@ package de.comparus.opensource.longmap;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Random;
+import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 
@@ -115,14 +115,31 @@ public class LongMapImplTest {
         map.put(KEY_2, VALUE_2);
         map.put(KEY_1, VALUE_1);
         //THEN
-        assertEquals(false, map.containsKey(new Random().nextLong()));
+        assertEquals(false, map.containsKey(999L)); //todo think about hash function. if we send -111222L
+        assertEquals(false, map.containsKey(1111L)); //todo think about hash function. if we send -111222L
     }
 
     @Test
-    public void containsValue() {
+    public void shouldReturnTrueValueContains() {
         //GIVEN
+        LongMap<String> map = new LongMapImpl<>();
+        //WHEN
+        map.put(KEY_2, VALUE_2);
+        map.put(KEY_3, VALUE_3);
+        map.put(KEY_1, VALUE_1);
+        //THEN
+        assertEquals(true, map.containsValue(VALUE_1));
+        assertEquals(true, map.containsValue(VALUE_2));
+        assertEquals(true, map.containsValue(VALUE_3));
+    }
+
+    @Test
+    public void shouldReturnFalseValueDoesNotContains() {
+        //GIVEN
+        LongMap<String> map = new LongMapImpl<>();
         //WHEN
         //THEN
+        assertEquals(false, map.containsValue(VALUE_1));
     }
 
     @Test
@@ -154,8 +171,14 @@ public class LongMapImplTest {
     @Test
     public void values() {
         //GIVEN
+        LongMap<String> map = new LongMapImpl<>();
         //WHEN
+        map.put(KEY_2, VALUE_2);
+        map.put(KEY_3, VALUE_3);
+        map.put(KEY_1, VALUE_1);
+        Collection<String> values = map.values();
         //THEN
+        System.out.println(values);
     }
 
     @Test
@@ -187,8 +210,9 @@ public class LongMapImplTest {
     @Test
     public void hashFunction() {
         //GIVEN
-
+        LongMap<String> map = new LongMapImpl<>();
         //WHEN
+        int i = ((LongMapImpl<String>) map).hashFunction(234L, 16);
         //THEN
     }
 
