@@ -54,7 +54,6 @@ public class LongMapImpl<V> implements LongMap<V> {
 
     public V get(long key) {
         int arrIndex = hashFunction(key, hashTable.length);
-        //todo separate for 2 exception
         if (arrIndex > hashTable.length - 1 || arrIndex < 0 || hashTable[arrIndex] == null) {
             throw new IllegalArgumentException("element with key: " + key + " does not exist");
         }
@@ -204,7 +203,6 @@ public class LongMapImpl<V> implements LongMap<V> {
         }
     }
 
-    //todo think about -111222L
     public int hashFunction(long key, int hashTableLength) {
         return (int) (key ^ (key >>> 32)) % hashTableLength;
     }
