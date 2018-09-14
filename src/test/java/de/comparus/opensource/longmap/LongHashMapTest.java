@@ -6,22 +6,22 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 
-public class LongMapImplTest {
+public class LongHashMapTest {
     private static final String VALUE_1 = "Value1";
     private static final String VALUE_2 = "Value2";
     private static final String VALUE_3 = "Value3";
 
-    private static final int KEY_1 = 1;
-    private static final int KEY_2 = 2;
-    private static final int KEY_3 = 3;
+    private static final long KEY_1 = 5740330960816732701L;
+    private static final long KEY_2 = 7913592731860455008L;
+    private static final long KEY_3 = -7574202685399910360L;
 
     private static final long KEY = -1119999904145558222L;
-    private static final int HASH_TABL_LENGTH = 16;
+    private static final int HASH_TABLE_LENGTH = 16;
 
     @Test
     public void shouldAddElementToMap() {
         //GIVEN
-        LongMap<String> map = new LongMapImpl<>();
+        LongMap<String> map = new LongHashMap<>();
         //WHEN
         map.put(KEY_1, VALUE_1);
         map.put(KEY_2, VALUE_2);
@@ -36,7 +36,7 @@ public class LongMapImplTest {
     @Test
     public void shouldRewriteValueIfKeySame() {
         //GIVEN
-        LongMap<String> map = new LongMapImpl<>();
+        LongMap<String> map = new LongHashMap<>();
         //WHEN
         map.put(KEY_1, VALUE_1);
         map.put(KEY_1, VALUE_2);
@@ -49,7 +49,7 @@ public class LongMapImplTest {
     @Test
     public void shouldGetElementByExistKEy() {
         //GIVEN
-        LongMap<String> map = new LongMapImpl<>();
+        LongMap<String> map = new LongHashMap<>();
         //WHEN
         map.put(KEY_3, VALUE_3);
         map.put(KEY_2, VALUE_2);
@@ -60,10 +60,19 @@ public class LongMapImplTest {
         assertEquals(VALUE_3, map.get(KEY_3));
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowExceptionWneGetElementByNotExistKEy() {
+        //GIVEN
+        LongMap<String> map = new LongHashMap<>();
+        //WHEN
+        //THEN
+        assertEquals(VALUE_1, map.get(KEY_1));
+    }
+
     @Test
     public void shouldRemoveElementByExistKey() {
         //GIVEN
-        LongMap<String> map = new LongMapImpl<>();
+        LongMap<String> map = new LongHashMap<>();
         //WHEN
         map.put(KEY_3, VALUE_3);
         map.put(KEY_2, VALUE_2);
@@ -76,20 +85,20 @@ public class LongMapImplTest {
     @Test
     public void shouldReturnNullWhenUserRemoveElementByNotExistKey() {
         //GIVEN
-        LongMap<String> map = new LongMapImpl<>();
+        LongMap<String> map = new LongHashMap<>();
         //WHEN
         map.put(KEY_3, VALUE_3);
         map.put(KEY_2, VALUE_2);
         map.put(KEY_1, VALUE_1);
         //THEN
-        assertEquals(null, map.remove(777));
+        assertEquals(null, map.remove(0));
 
     }
 
     @Test
     public void shouldReturnFalseIfMapDoesNotEmpty() {
         //GIVEN
-        LongMap<String> map = new LongMapImpl<>();
+        LongMap<String> map = new LongHashMap<>();
         //WHEN
         map.put(KEY_3, VALUE_3);
         map.put(KEY_2, VALUE_2);
@@ -101,7 +110,7 @@ public class LongMapImplTest {
     @Test
     public void shouldReturnTrueIfMapIsEmpty() {
         //GIVEN
-        LongMap<String> map = new LongMapImpl<>();
+        LongMap<String> map = new LongHashMap<>();
         //WHEN
         //THEN
         assertEquals(true, map.isEmpty());
@@ -110,7 +119,7 @@ public class LongMapImplTest {
     @Test
     public void shouldReturnTrueMapContainsKey() {
         //GIVEN
-        LongMap<String> map = new LongMapImpl<>();
+        LongMap<String> map = new LongHashMap<>();
         //WHEN
         map.put(KEY_3, VALUE_3);
         map.put(KEY_2, VALUE_2);
@@ -124,7 +133,7 @@ public class LongMapImplTest {
     @Test
     public void shouldReturnFalseIfMapDoesNotContainsKey() {
         //GIVEN
-        LongMap<String> map = new LongMapImpl<>();
+        LongMap<String> map = new LongHashMap<>();
         //WHEN
         map.put(KEY_3, VALUE_3);
         map.put(KEY_2, VALUE_2);
@@ -137,7 +146,7 @@ public class LongMapImplTest {
     @Test
     public void shouldReturnTrueIfValueContains() {
         //GIVEN
-        LongMap<String> map = new LongMapImpl<>();
+        LongMap<String> map = new LongHashMap<>();
         //WHEN
         map.put(KEY_2, VALUE_2);
         map.put(KEY_3, VALUE_3);
@@ -149,9 +158,21 @@ public class LongMapImplTest {
     }
 
     @Test
+    public void shouldReturnTrueIfValueNull() {
+        //GIVEN
+        LongMap<String> map = new LongHashMap<>();
+        //WHEN
+        map.put(KEY_2, null);
+        map.put(KEY_3, VALUE_3);
+        map.put(KEY_1, VALUE_1);
+        //THEN
+        assertEquals(true, map.containsValue(null));
+    }
+
+    @Test
     public void shouldReturnFalseValueDoesNotContains() {
         //GIVEN
-        LongMap<String> map = new LongMapImpl<>();
+        LongMap<String> map = new LongHashMap<>();
         //WHEN
         //THEN
         assertEquals(false, map.containsValue(VALUE_1));
@@ -160,7 +181,7 @@ public class LongMapImplTest {
     @Test
     public void shouldReturnKeys() {
         //GIVEN
-        LongMap<String> map = new LongMapImpl<>();
+        LongMap<String> map = new LongHashMap<>();
         //WHEN
         map.put(KEY_2, VALUE_2);
         map.put(KEY_3, VALUE_3);
@@ -176,7 +197,7 @@ public class LongMapImplTest {
     @Test
     public void shouldNotReturnKeys() {
         //GIVEN
-        LongMap<String> map = new LongMapImpl<>();
+        LongMap<String> map = new LongHashMap<>();
         //WHEN
         long[] keys = map.keys();
         //THEN
@@ -186,7 +207,7 @@ public class LongMapImplTest {
     @Test
     public void shouldReturnExistValues() {
         //GIVEN
-        LongMap<String> map = new LongMapImpl<>();
+        LongMap<String> map = new LongHashMap<>();
         //WHEN
         map.put(KEY_2, VALUE_2);
         map.put(KEY_3, VALUE_3);
@@ -198,7 +219,7 @@ public class LongMapImplTest {
     @Test
     public void shouldReturnZeoValues() {
         //GIVEN
-        LongMap<String> map = new LongMapImpl<>();
+        LongMap<String> map = new LongHashMap<>();
         //WHEN
         //THEN
         assertEquals(0, map.values().size());
@@ -207,7 +228,7 @@ public class LongMapImplTest {
     @Test
     public void shouldReturnActualMapSize() {
         //GIVEN
-        LongMap<String> map = new LongMapImpl<>();
+        LongMap<String> map = new LongHashMap<>();
         //WHEN
         map.put(KEY_2, VALUE_2);
         map.put(KEY_3, VALUE_3);
@@ -219,7 +240,7 @@ public class LongMapImplTest {
     @Test
     public void shouldRemoveAllElementsFromMap() {
         //GIVEN
-        LongMap<String> map = new LongMapImpl<>();
+        LongMap<String> map = new LongHashMap<>();
         //WHEN
         map.put(KEY_2, VALUE_2);
         map.put(KEY_3, VALUE_3);
@@ -233,14 +254,27 @@ public class LongMapImplTest {
     @Test
     public void hashFunction() {
         //GIVEN
-        LongMap<String> map = new LongMapImpl<>();
+        LongMap<String> map = new LongHashMap<>();
         //WHEN
-        int firstResult = ((LongMapImpl<String>) map).hashFunction(KEY, HASH_TABL_LENGTH);
-        int secondResult = ((LongMapImpl<String>) map).hashFunction(KEY, HASH_TABL_LENGTH);
+        int firstResult = ((LongHashMap<String>) map).hashFunction(KEY, HASH_TABLE_LENGTH);
+        int secondResult = ((LongHashMap<String>) map).hashFunction(KEY, HASH_TABLE_LENGTH);
         //THEN
         assertNotSame(KEY, firstResult);
         assertNotSame(KEY, secondResult);
         assertEquals(firstResult, secondResult);
+    }
+
+    @Test
+    public void shouldCreateMapWithCustomSize() {
+        int customMapSize = 7;
+        //GIVEN
+        LongMap<String> map = new LongHashMap<>(customMapSize);
+        //WHEN
+        for (int i = 0; i < customMapSize; i++) {
+            map.put(i, "Value: " + 1);
+        }
+        //THEN
+        assertEquals(customMapSize, map.size());
     }
 
     private boolean findKey(long findKey, long[] keys) {
