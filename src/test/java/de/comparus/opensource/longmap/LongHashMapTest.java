@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
 
 public class LongHashMapTest {
     private static final String VALUE_1 = "Value1";
@@ -139,8 +140,8 @@ public class LongHashMapTest {
         map.put(KEY_2, VALUE_2);
         map.put(KEY_1, VALUE_1);
         //THEN
-        assertEquals(false, map.containsKey(999L)); //todo think about hash function. if we send -111222L
-        assertEquals(false, map.containsKey(1111L)); //todo think about hash function. if we send -111222L
+        assertEquals(false, map.containsKey(999L));
+        assertEquals(false, map.containsKey(1111L));
     }
 
     @Test
@@ -252,7 +253,7 @@ public class LongHashMapTest {
     }
 
     @Test
-    public void hashFunction() {
+    public void shouldReturnSameValueEachTime() {
         //GIVEN
         LongMap<String> map = new LongHashMap<>();
         //WHEN
@@ -262,6 +263,16 @@ public class LongHashMapTest {
         assertNotSame(KEY, firstResult);
         assertNotSame(KEY, secondResult);
         assertEquals(firstResult, secondResult);
+    }
+
+    @Test
+    public void shouldReturnValueWhichEqualOrLessHashMapSize() {
+        //GIVEN
+        LongMap<String> map = new LongHashMap<>();
+        //WHEN
+        int firstResult = ((LongHashMap<String>) map).hashFunction(KEY, HASH_TABLE_LENGTH);
+        //THEN
+        assertTrue(firstResult <= map.size());
     }
 
     @Test
