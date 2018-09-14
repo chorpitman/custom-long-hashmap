@@ -6,42 +6,40 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-public class LongMapImpl<V> implements LongMap<V> {
+public class LongHashMap<V> implements LongMap<V> {
     private static final int DEFAULT_HASH_MAP_SIZE = 16;
     private Node<V>[] hashTable;
     private int size;
 
-    public LongMapImpl() {
+    public LongHashMap() {
         hashTable = new Node[DEFAULT_HASH_MAP_SIZE];
     }
 
-    public V put(long key, V value) {
-        //create node
-        Node<V> newNode = new Node<>(key, value);
-        //get index for hashtable
-        int arrIndex = hashFunction(key, hashTable.length);
+    public LongHashMap(int size) {
+        hashTable = new Node[size];
+    }
 
-        //empty cell in hashtable
-        if (hashTable[arrIndex] == null) {
-            hashTable[arrIndex] = new Node<>();
-            hashTable[arrIndex].getNodesList().add(newNode);
+    public V put(long key, V value) {
+        Node<V> newNode = new Node<>(key, value);
+        int index = hashFunction(key, hashTable.length);
+
+        if (hashTable[index] == null) {
+            hashTable[index] = new Node<>();
+            hashTable[index].getNodesList().add(newNode);
             size++;
 
             return value;
         }
 
-        //cell has element
-        List<Node<V>> foundNodes = hashTable[arrIndex].getNodesList();
+        List<Node<V>> foundNodes = hashTable[index].getNodesList();
         for (Node<V> node : foundNodes) {
-            //key exist in hashtable value does not same
             if (node.getKey() == key && !Objects.equals(node.getValue(), value)) {
-                //replace value
                 node.setValue(value);
 
                 return value;
             }
-            //collision. hashcode same but key and value are different
-            if (node.getKey() != key && !Objects.equals(node.getValue(), value) && Objects.equals(newNode, node)) {
+
+            if (node.getKey() != key && !Objects.equals(node.getValue(), value) && Objects.equals(node, newNode)) {
                 foundNodes.add(newNode);
                 size++;
 
@@ -53,18 +51,14 @@ public class LongMapImpl<V> implements LongMap<V> {
     }
 
     public V get(long key) {
-        int arrIndex = hashFunction(key, hashTable.length);
-        if (arrIndex > hashTable.length - 1 || arrIndex < 0 || hashTable[arrIndex] == null) {
+        int index = hashFunction(key, hashTable.length);
+        if (index > hashTable.length - 1 || index < 0 || hashTable[index] == null) {
             throw new IllegalArgumentException("element with key: " + key + " does not exist");
         }
 
-        if (hashTable[arrIndex].getNodesList().size() == 1) {
-            return hashTable[arrIndex].getNodesList().get(0).getValue();
-        }
-
-        List<Node<V>> foundNodes = hashTable[arrIndex].getNodesList();
+        List<Node<V>> foundNodes = hashTable[index].getNodesList();
         for (Node<V> node : foundNodes) {
-            if (key == node.getKey()) {
+            if (node.getKey() == key) {
                 return node.getValue();
             }
         }
@@ -73,28 +67,19 @@ public class LongMapImpl<V> implements LongMap<V> {
     }
 
     public V remove(long key) {
-        //remove using key //todo
-        int arrIndex = hashFunction(key, hashTable.length);
+        int index = hashFunction(key, hashTable.length);
 
-        if (hashTable[arrIndex] == null) {
+        if (hashTable[index] == null) {
             return null;
         }
 
-        if (hashTable[arrIndex].getNodesList().size() == 1) {
-            V removeCandidate = hashTable[arrIndex].getNodesList().get(0).getValue();
-            hashTable[arrIndex] = null;
-            size--;
-
-            return removeCandidate;
-        }
-
-        List<Node<V>> foundNodes = hashTable[arrIndex].getNodesList();
+        List<Node<V>> foundNodes = hashTable[index].getNodesList();
         for (Node<V> node : foundNodes) {
-            if (key == node.getKey()) {
-                V removeCandidate = node.getValue();
+            if (node.getKey() == key) {
                 foundNodes.remove(node);
+                size--;
 
-                return removeCandidate;
+                return node.getValue();
             }
         }
 
@@ -106,18 +91,13 @@ public class LongMapImpl<V> implements LongMap<V> {
     }
 
     public boolean containsKey(long key) {
-        //find arr cell
-        int arrIndex = hashFunction(key, hashTable.length);
+        int index = hashFunction(key, hashTable.length);
 
-        if (arrIndex > hashTable.length - 1 || arrIndex < 0 || hashTable[arrIndex] == null) {
+        if (index > hashTable.length - 1 || index < 0 || hashTable[index] == null) {
             return false;
         }
 
-        if (hashTable[arrIndex].getNodesList().size() == 1) {
-            return true;
-        }
-
-        List<Node<V>> foundNode = hashTable[arrIndex].getNodesList();
+        List<Node<V>> foundNode = hashTable[index].getNodesList();
         for (Node<V> node : foundNode) {
             if (node.getKey() == key) {
                 return true;
@@ -128,10 +108,6 @@ public class LongMapImpl<V> implements LongMap<V> {
     }
 
     public boolean containsValue(V value) {
-        if (Objects.isNull(value)) {
-
-        }
-
         if (size == 0) {
             return false;
         }
@@ -141,13 +117,11 @@ public class LongMapImpl<V> implements LongMap<V> {
                 continue;
             }
 
-            List<Node<V>> nodesList = hashTable[i].getNodesList();
-            for (Node<V> node : nodesList) {
-                if (Objects.equals(node.getValue(), value)) {
-                    return true;
-                }
+            if (isValuesEqual(value, hashTable[i])) {
+                return true;
             }
         }
+
         return false;
     }
 
@@ -163,7 +137,9 @@ public class LongMapImpl<V> implements LongMap<V> {
             }
         }
 
-        if (keysList.isEmpty()) return new long[0];
+        if (keysList.isEmpty()) {
+            return new long[0];
+        }
 
         return keysList.stream().mapToLong(l -> l).toArray();
     }
@@ -205,5 +181,15 @@ public class LongMapImpl<V> implements LongMap<V> {
 
     public int hashFunction(long key, int hashTableLength) {
         return (int) (key ^ (key >>> 32)) % hashTableLength;
+    }
+
+    private boolean isValuesEqual(final V value, final Node<V> vNode) {
+        List<Node<V>> nodesList = vNode.getNodesList();
+        for (Node<V> node : nodesList) {
+            if (Objects.equals(node.getValue(), value)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
